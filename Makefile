@@ -3,29 +3,33 @@ APP_NAME := upscayl
 OUTPUT_DIR := release/build
 MAIN_PKG := .
 
+# Extract version from version.go
+VERSION := $(shell grep 'const Version' version.go | sed 's/[^"]*"\([^"]*\)".*/\1/')
+
 # Default target
 all: clean linux mac-amd mac-arm
 
-# Linux AMD64 build
 linux:
-	@echo "Building for Linux (amd64)..."
-	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-linux-amd64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-linux-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-linux-amd64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-linux-amd64
+	@echo "Building for Linux (amd64)... Version: $(VERSION)"
+	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64 $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-linux-amd64
+	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64
 
-# macOS AMD64 build
 mac-amd:
-	@echo "Building for macOS (amd64)..."
-	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-darwin-amd64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-darwin-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-darwin-amd64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-darwin-amd64
+	@echo "Building for macOS (amd64)... Version: $(VERSION)"
+	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64 $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-darwin-amd64
+	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64
 
-# macOS ARM64 build
 mac-arm:
-	@echo "Building for macOS (arm64)..."
-	GOOS=darwin GOARCH=arm64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-darwin-arm64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-darwin-arm64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-darwin-arm64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-darwin-arm64
+	@echo "Building for macOS (arm64)... Version: $(VERSION)"
+	GOOS=darwin GOARCH=arm64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64 $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-darwin-arm64
+	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64
+
+local:
+	@echo "Building for local..."
+	go build -o $(OUTPUT_DIR)/local/$(APP_NAME) $(MAIN_PKG)
 
 # Clean
 clean:
