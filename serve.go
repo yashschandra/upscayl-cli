@@ -25,7 +25,7 @@ func getServeCommand() *cobra.Command {
 
 func serve(port int16) {
 	log.Printf("starting server at %d", port)
-	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/upscayl", func(w http.ResponseWriter, r *http.Request) {
 		var req upscayl.Input
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {

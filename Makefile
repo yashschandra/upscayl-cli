@@ -11,21 +11,21 @@ all: clean linux mac-amd mac-arm
 
 linux:
 	@echo "Building for Linux (amd64)... Version: $(VERSION)"
-	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-linux-amd64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64
+	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME) $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-linux-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)
+	@rm $(OUTPUT_DIR)/$(APP_NAME)
 
 mac-amd:
 	@echo "Building for macOS (amd64)... Version: $(VERSION)"
-	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-darwin-amd64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64
+	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/$(APP_NAME) $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-amd64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)
+	@rm $(OUTPUT_DIR)/$(APP_NAME)
 
 mac-arm:
 	@echo "Building for macOS (arm64)... Version: $(VERSION)"
-	GOOS=darwin GOARCH=arm64 go build -o $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64 $(MAIN_PKG)
-	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)-v$(VERSION)-darwin-arm64
-	@rm $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64
+	GOOS=darwin GOARCH=arm64 go build -o $(OUTPUT_DIR)/$(APP_NAME) $(MAIN_PKG)
+	@tar -czf $(OUTPUT_DIR)/$(APP_NAME)-v$(VERSION)-darwin-arm64.tar.gz -C $(OUTPUT_DIR) $(APP_NAME)
+	@rm $(OUTPUT_DIR)/$(APP_NAME)
 
 local:
 	@echo "Building for local..."
