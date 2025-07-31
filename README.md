@@ -42,8 +42,18 @@ By default `upscayl-standard-4x` model is used.
 
 ### Basic usage
 
+To Upscayl an image, either pass the path of the image -
+
 ```
 ./path/to/upscayl run -i /path/to/input-image -o /path/to/output-image
+```
+
+OR
+
+pass the url of the image - 
+
+```
+./path/to/upscayl run -u https://your/image/url -o /path/to/output-image
 ```
 
 ### Run a server
