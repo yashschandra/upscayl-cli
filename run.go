@@ -12,7 +12,12 @@ func getRunCommand() *cobra.Command {
 		Short: "Upscayl single image using command line options",
 		Run: func(cmd *cobra.Command, args []string) {
 			image, _ := cmd.Flags().GetString("input")
-			outputPath, err := upscayl.Upscayl(upscayl.Input{ImagePath: image})
+			url, _ := cmd.Flags().GetString("url")
+			input := upscayl.Input{
+				ImagePath: image,
+				ImageURL:  url,
+			}
+			outputPath, err := upscayl.Upscayl(input)
 			if err != nil {
 				log.Fatal("error while upscayling", err.Error())
 			}
@@ -20,6 +25,7 @@ func getRunCommand() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringP("input", "i", "", "Input image path (jpg/png/webp) or directory")
+	cmd.Flags().StringP("url", "u", "", "Input image url (jpg/png/webp)")
 	cmd.Flags().StringP("output", "o", "", "Output image path (jpg/png/webp) or directory")
 	cmd.Flags().IntP("model-scale", "z", 4, "Scale according to the model (can be 2, 3, 4)")
 	cmd.Flags().IntP("output-scale", "s", 4, "Custom output scale (can be 2, 3, 4)")
@@ -34,6 +40,5 @@ func getRunCommand() *cobra.Command {
 	cmd.Flags().BoolP("tta", "x", false, "Enable TTA mode")
 	cmd.Flags().StringP("format", "f", "ext/png", "Output image format (jpg/png/webp)")
 	cmd.Flags().BoolP("verbose", "v", false, "Verbose output")
-	_ = cmd.MarkFlagRequired("input")
 	return cmd
 }

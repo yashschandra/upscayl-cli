@@ -1,13 +1,16 @@
 package upscayl
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -106,6 +109,7 @@ func init() {
 
 type Input struct {
 	ImagePath      string `json:"imagePath"`
+	ImageURL       string `json:"imageUrl"`
 	OutputPath     string `json:"outputPath"`
 	ModelPath      string `json:"modelPath"`
 	Model          string `json:"model"`
@@ -121,6 +125,33 @@ type Input struct {
 }
 
 func Upscayl(input Input) (string, error) {
+	if input.ImagePath == "" && input.ImageURL == "" {
+		return "", errors.New("input path or url not set")
+	}
+	if input.ImagePath != "" && input.ImageURL != "" {
+		return "", errors.New("only 1 of the input allowed")
+	}
+	if input.ImageURL != "" {
+		parsedURL, err := url.Parse(input.ImageURL)
+		if err != nil {
+			return "", err
+		}
+		ext := path.Ext(parsedURL.Path)
+		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" && ext != ".webp" {
+			return "", errors.New("invalid extension in url expected .png, .jpg, .jpeg, .webp")
+		}
+		tmpFilePath := filepath.Join(rootDir, "input"+ext)
+		err = download(input.ImageURL, tmpFilePath)
+		if err != nil {
+			return "", err
+		}
+		defer os.Remove(tmpFilePath)
+		input.ImagePath = tmpFilePath
+	}
+	return upscaylImage(input)
+}
+
+func upscaylImage(input Input) (string, error) {
 	args := make([]string, 0)
 	args = append(args, fmt.Sprintf("-i %s", input.ImagePath))
 	if input.OutputPath == "" {
