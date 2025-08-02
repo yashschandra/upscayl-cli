@@ -34,7 +34,7 @@ make local # executable will appear in release/build/local directory
 ### Download a release
 
 You can download the releases from [here](https://github.com/yashschandra/upscayl-cli/releases). Only Mac (intel/silicon) and Linux supported.
-Current latest release is version `v0.0.4`
+Current latest release is version `v0.0.5`
 
 ## 📚 Usage
 
