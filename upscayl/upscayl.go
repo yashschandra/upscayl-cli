@@ -23,9 +23,9 @@ const (
 
 	defaultModel = "upscayl-standard-4x"
 
-	binaryUrlFmt         = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/%s/bin/upscayl-bin"
-	defaultModelBinUrl   = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/" + defaultModel + ".bin"
-	defaultModelParamUrl = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/" + defaultModel + ".param"
+	binaryUrlFmt     = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/%s/bin/upscayl-bin"
+	modelBinUrlFmt   = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/%s.bin"
+	modelParamUrlFmt = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/%s.param"
 )
 
 var (
@@ -62,6 +62,26 @@ func download(url, fpath string) error {
 	return err
 }
 
+func downloadModel(model string) error {
+	binPath := filepath.Join(modelsPath, model+".bin")
+	if !isFileExist(binPath) {
+		log.Printf("downloading %s bin file\n", model)
+		err := download(fmt.Sprintf(modelBinUrlFmt, model), binPath)
+		if err != nil {
+			return fmt.Errorf("error downloading bin file %s", err.Error())
+		}
+	}
+	paramPath := filepath.Join(modelsPath, model+".param")
+	if !isFileExist(paramPath) {
+		log.Printf("downloading %s param file\n", model)
+		err := download(fmt.Sprintf(modelParamUrlFmt, model), paramPath)
+		if err != nil {
+			return fmt.Errorf("error downloading param file %s", err.Error())
+		}
+	}
+	return nil
+}
+
 func init() {
 	usr, err := user.Current()
 	if err != nil {
@@ -78,15 +98,9 @@ func init() {
 		if err != nil {
 			log.Fatal("error creating models dir", err.Error())
 		}
-		log.Println("downloading bin file")
-		err = download(defaultModelBinUrl, filepath.Join(modelsPath, defaultModel+".bin"))
+		err = downloadModel(defaultModel)
 		if err != nil {
-			log.Fatal("error downloading bin file", err.Error())
-		}
-		log.Println("downloading param file")
-		err = download(defaultModelParamUrl, filepath.Join(modelsPath, defaultModel+".param"))
-		if err != nil {
-			log.Fatal("error downloading param file", err.Error())
+			log.Fatal("error downloading model", err.Error())
 		}
 	}
 
@@ -200,4 +214,8 @@ func upscaylImage(input Input) (string, error) {
 
 func Reset() error {
 	return os.RemoveAll(rootDir)
+}
+
+func Download(model string) error {
+	return downloadModel(model)
 }

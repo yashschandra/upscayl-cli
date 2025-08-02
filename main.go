@@ -19,6 +19,7 @@ func main() {
 	rootCmd.AddCommand(getServeCommand())
 	rootCmd.AddCommand(getRunCommand())
 	rootCmd.AddCommand(getResetCommand())
+	rootCmd.AddCommand(getDownloadCommand())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

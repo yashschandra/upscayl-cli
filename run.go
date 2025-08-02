@@ -13,9 +13,11 @@ func getRunCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			image, _ := cmd.Flags().GetString("input")
 			url, _ := cmd.Flags().GetString("url")
+			model, _ := cmd.Flags().GetString("model-name")
 			input := upscayl.Input{
 				ImagePath: image,
 				ImageURL:  url,
+				Model:     model,
 			}
 			outputPath, err := upscayl.Upscayl(input)
 			if err != nil {
