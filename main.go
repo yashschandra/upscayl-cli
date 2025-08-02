@@ -20,6 +20,7 @@ func main() {
 	rootCmd.AddCommand(getRunCommand())
 	rootCmd.AddCommand(getResetCommand())
 	rootCmd.AddCommand(getDownloadCommand())
+	rootCmd.AddCommand(getListCommand())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

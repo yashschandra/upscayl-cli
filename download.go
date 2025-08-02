@@ -15,7 +15,7 @@ func getDownloadCommand() *cobra.Command {
 			model := args[0]
 			err := upscayl.Download(model)
 			if err != nil {
-				log.Fatal("error while resetting", err.Error())
+				log.Fatal("error while downloading", err.Error())
 			}
 		},
 	}

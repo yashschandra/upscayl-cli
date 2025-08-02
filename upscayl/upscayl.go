@@ -82,6 +82,18 @@ func downloadModel(model string) error {
 	return nil
 }
 
+func listModels() error {
+	return filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".bin") {
+			fmt.Println(info.Name())
+		}
+		return nil
+	})
+}
+
 func init() {
 	usr, err := user.Current()
 	if err != nil {
@@ -218,4 +230,8 @@ func Reset() error {
 
 func Download(model string) error {
 	return downloadModel(model)
+}
+
+func List() error {
+	return listModels()
 }
