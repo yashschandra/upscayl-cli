@@ -34,7 +34,7 @@ make local # executable will appear in release/build/local directory
 ### Download a release
 
 You can download the releases from [here](https://github.com/yashschandra/upscayl-cli/releases). Only Mac (intel/silicon) and Linux supported.
-Current latest release is version `v0.0.2`
+Current latest release is version `v0.0.4`
 
 ## 📚 Usage
 
@@ -54,6 +54,14 @@ pass the url of the image -
 
 ```
 ./path/to/upscayl run -u https://your/image/url -o /path/to/output-image
+```
+
+### Download models
+
+To download a particular Upscayl model use the download command -
+
+```
+./path/to/upscayl download [MODEL NAME]
 ```
 
 ### Run a server
@@ -104,5 +112,5 @@ Whether you're fixing bugs, suggesting new features, improving documentation, or
 ## 📝 In progress
 
 1. Provide the tool as package for Mac and Linux
-2. Support to upscayl multiple images when using `upscayl run`
+2. Provide commands to list available models
 3. Improve documentation
