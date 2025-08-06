@@ -1,3 +1,7 @@
+// Package upscayl provides a lightweight Go-based CLI wrapper to download,
+// configure, and run the Upscayl image upscaling tool. It supports downloading
+// models and binaries, managing user config directories, and running the
+// Upscayl binary with custom parameters for local or remote images.
 package upscayl
 
 import (
@@ -17,14 +21,25 @@ import (
 )
 
 const (
+	// baseFolderName is the main directory under user's home for storing Upscayl resources.
 	baseFolderName = ".upscayl-cli"
-	baseModelPath  = "/resources/models"
+
+	// baseModelPath defines the relative path for storing models.
+	baseModelPath = "/resources/models"
+
+	// basebinaryPath is the relative path for storing the Upscayl binary.
 	basebinaryPath = "/resources/bin/upscayl-bin"
 
+	// defaultModel is the default model used for image upscaling.
 	defaultModel = "upscayl-standard-4x"
 
-	binaryUrlFmt     = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/%s/bin/upscayl-bin"
-	modelBinUrlFmt   = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/%s.bin"
+	// binaryUrlFmt is the format URL for downloading the binary based on OS.
+	binaryUrlFmt = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/%s/bin/upscayl-bin"
+
+	// modelBinUrlFmt is the format URL for downloading model .bin files.
+	modelBinUrlFmt = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/%s.bin"
+
+	// modelParamUrlFmt is the format URL for downloading model .param files.
 	modelParamUrlFmt = "https://raw.githubusercontent.com/upscayl/upscayl/main/resources/models/%s.param"
 )
 
@@ -33,17 +48,23 @@ var (
 	modelsPath        string
 	binaryPath        string
 	defaultOutputPath string
-	osNameMap         = map[string]string{
+
+	// osNameMap maps runtime.GOOS to corresponding folder names for binary download.
+	osNameMap = map[string]string{
 		"darwin": "mac",
 		"linux":  "linux",
 	}
 )
 
+// isFileExist checks whether a file already exists by trying to exclusively create it.
+// Returns true if the file already exists.
 func isFileExist(fpath string) bool {
 	_, err := os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0755)
 	return os.IsExist(err)
 }
 
+// download retrieves a file from the given URL and writes it to the specified file path.
+// It returns an error if the HTTP request fails or writing to file fails.
 func download(url, fpath string) error {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -62,6 +83,8 @@ func download(url, fpath string) error {
 	return err
 }
 
+// downloadModel downloads both .bin and .param files for a given model name
+// if they are not already present locally.
 func downloadModel(model string) error {
 	binPath := filepath.Join(modelsPath, model+".bin")
 	if !isFileExist(binPath) {
@@ -82,6 +105,7 @@ func downloadModel(model string) error {
 	return nil
 }
 
+// listModels prints the names of all .bin model files in the root directory.
 func listModels() error {
 	return filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -94,6 +118,8 @@ func listModels() error {
 	})
 }
 
+// init sets up the default directories and downloads the binary and default model
+// if they are not already present.
 func init() {
 	usr, err := user.Current()
 	if err != nil {
@@ -133,23 +159,26 @@ func init() {
 	}
 }
 
+// Input holds all parameters required to perform image upscaling with Upscayl.
 type Input struct {
-	ImagePath      string `json:"imagePath"`
-	ImageURL       string `json:"imageUrl"`
-	OutputPath     string `json:"outputPath"`
-	ModelPath      string `json:"modelPath"`
-	Model          string `json:"model"`
-	SaveImageAs    string `json:"saveImageAs"`
-	GPUId          *int   `json:"gpuId"`
-	Scale          string `json:"scale"`
-	Overwrite      bool   `json:"overwrite"`
-	Compression    string `json:"compression"`
-	CustomWidth    int    `json:"customWidth"`
-	UseCustomWidth bool   `json:"useCustomWidth"`
-	TileSize       *int   `json:"tileSize"`
-	TTAMode        bool   `json:"ttaMode"`
+	ImagePath      string `json:"imagePath"`      // Path to local image file
+	ImageURL       string `json:"imageUrl"`       // URL of the image to upscale
+	OutputPath     string `json:"outputPath"`     // Path to save the upscaled image
+	ModelPath      string `json:"modelPath"`      // Path to model directory
+	Model          string `json:"model"`          // Model name to use (without extension)
+	SaveImageAs    string `json:"saveImageAs"`    // Output image format (png, jpg, etc.)
+	GPUId          *int   `json:"gpuId"`          // Optional GPU ID to use
+	Scale          string `json:"scale"`          // Scale factor (default is "4")
+	Overwrite      bool   `json:"overwrite"`      // Whether to overwrite existing file
+	Compression    string `json:"compression"`    // Output compression level
+	CustomWidth    int    `json:"customWidth"`    // Desired width if UseCustomWidth is true
+	UseCustomWidth bool   `json:"useCustomWidth"` // Flag to enable custom width
+	TileSize       *int   `json:"tileSize"`       // Optional tile size for upscaling
+	TTAMode        bool   `json:"ttaMode"`        // Enable test-time augmentation mode
 }
 
+// Upscayl validates and processes the input configuration, downloads remote image
+// if needed, and then runs the upscaling process. Returns the path to the output image.
 func Upscayl(input Input) (string, error) {
 	if input.ImagePath == "" && input.ImageURL == "" {
 		return "", errors.New("input path or url not set")
@@ -177,6 +206,8 @@ func Upscayl(input Input) (string, error) {
 	return upscaylImage(input)
 }
 
+// upscaylImage builds the CLI command and executes the Upscayl binary with the provided input.
+// Returns the final output path or an error if the command fails.
 func upscaylImage(input Input) (string, error) {
 	args := make([]string, 0)
 	args = append(args, fmt.Sprintf("-i %s", input.ImagePath))
@@ -224,14 +255,17 @@ func upscaylImage(input Input) (string, error) {
 	return input.OutputPath, cmd.Run()
 }
 
+// Reset deletes the entire root directory along with downloaded models and binary.
 func Reset() error {
 	return os.RemoveAll(rootDir)
 }
 
+// Download manually downloads the specified model's .bin and .param files.
 func Download(model string) error {
 	return downloadModel(model)
 }
 
+// List prints all available model .bin files found in the local directory.
 func List() error {
 	return listModels()
 }
