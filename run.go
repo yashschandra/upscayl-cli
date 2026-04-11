@@ -11,13 +11,15 @@ func getRunCommand() *cobra.Command {
 		Use:   "run",
 		Short: "Upscayl single image using command line options",
 		Run: func(cmd *cobra.Command, args []string) {
-			image, _ := cmd.Flags().GetString("input")
+			imagePath, _ := cmd.Flags().GetString("input")
 			url, _ := cmd.Flags().GetString("url")
 			model, _ := cmd.Flags().GetString("model-name")
+			outputPath, _ := cmd.Flags().GetString("output")
 			input := upscayl.Input{
-				ImagePath: image,
-				ImageURL:  url,
-				Model:     model,
+				ImagePath:  imagePath,
+				ImageURL:   url,
+				Model:      model,
+				OutputPath: outputPath,
 			}
 			outputPath, err := upscayl.Upscayl(input)
 			if err != nil {
@@ -35,8 +37,8 @@ func getRunCommand() *cobra.Command {
 	cmd.Flags().IntP("width", "w", 0, "Resize output to a width (default=W:default), use '-r help' for more details")
 	cmd.Flags().IntP("compress", "c", 0, "Compression of the output image, default 0 and varies to 100")
 	cmd.Flags().StringP("tile-size", "t", "0", "Tile size (>=32/0=auto, default=0) can be 0,0,0 for multi-gpu")
-	cmd.Flags().StringP("model-path", "m", "models", "Folder path to the pre-trained models")
-	cmd.Flags().StringP("model-name", "n", "realesrgan-x4plus", "Model name")
+	cmd.Flags().StringP("model-path", "m", "", "Folder path to the pre-trained models")
+	cmd.Flags().StringP("model-name", "n", "upscayl-standard-4x", "Model name")
 	cmd.Flags().StringP("gpu-id", "g", "auto", "GPU device to use (default=auto) can be 0,1,2 for multi-gpu")
 	cmd.Flags().StringP("threads", "j", "1:2:2", "Thread count for load/proc/save (default=1:2:2)")
 	cmd.Flags().BoolP("tta", "x", false, "Enable TTA mode")
