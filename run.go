@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/yashschandra/upscayl-cli/upscayl"
 	"log"
@@ -15,11 +16,33 @@ func getRunCommand() *cobra.Command {
 			url, _ := cmd.Flags().GetString("url")
 			model, _ := cmd.Flags().GetString("model-name")
 			outputPath, _ := cmd.Flags().GetString("output")
+			outputScale, _ := cmd.Flags().GetInt("output-scale")
+			compress, _ := cmd.Flags().GetInt("compress")
+			tileSizeStr, _ := cmd.Flags().GetString("tile-size")
+			modelPath, _ := cmd.Flags().GetString("model-path")
+			format, _ := cmd.Flags().GetString("format")
+			tta, _ := cmd.Flags().GetBool("tta")
+
+			scaleStr := fmt.Sprintf("%d", outputScale)
+
+			var tileSize *int
+			if tileSizeStr != "0" {
+				var t int
+				fmt.Sscanf(tileSizeStr, "%d", &t)
+				tileSize = &t
+			}
+
 			input := upscayl.Input{
-				ImagePath:  imagePath,
-				ImageURL:   url,
-				Model:      model,
-				OutputPath: outputPath,
+				ImagePath:   imagePath,
+				ImageURL:    url,
+				Model:       model,
+				OutputPath:  outputPath,
+				Scale:       scaleStr,
+				Compression: fmt.Sprintf("%d", compress),
+				TileSize:    tileSize,
+				ModelPath:   modelPath,
+				SaveImageAs: format,
+				TTAMode:     tta,
 			}
 			outputPath, err := upscayl.Upscayl(input)
 			if err != nil {
