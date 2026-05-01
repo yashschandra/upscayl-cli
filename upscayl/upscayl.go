@@ -226,10 +226,12 @@ func upscaylImage(input Input) (string, error) {
 		return "", errors.New("model does not exist")
 	}
 	args = append(args, fmt.Sprintf("-m %s", input.ModelPath))
-	if input.SaveImageAs == "" {
+	if input.SaveImageAs == "" || input.SaveImageAs == "ext/png" {
 		input.SaveImageAs = filepath.Ext(input.ImagePath)[1:]
 	}
-	args = append(args, fmt.Sprintf("-f %s", input.SaveImageAs))
+	if input.SaveImageAs != "" {
+		args = append(args, fmt.Sprintf("-f %s", input.SaveImageAs))
+	}
 	if input.GPUId != nil {
 		args = append(args, fmt.Sprintf("-g %d", input.GPUId))
 	}
