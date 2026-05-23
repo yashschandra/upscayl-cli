@@ -1,0 +1,100 @@
+name: Build Releases
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: upscayl
+  OUTPUT_DIR: release/build
+
+jobs:
+  build:
+    name: Build ${{ matrix.os-name }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            os-name: linux-amd64
+
+          - goos: darwin
+            goarch: amd64
+            os-name: darwin-amd64
+
+          - goos: darwin
+            goarch: arm64
+            os-name: darwin-arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(grep 'const Version' version.go | sed 's/[^"]*"\([^"]*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create output directory
+        run: mkdir -p $OUTPUT_DIR
+
+      - name: Build binary
+        run: |
+          echo "Building for ${{ matrix.goos }}/${{ matrix.goarch }}..."
+
+          GOOS=${{ matrix.goos }} \
+          GOARCH=${{ matrix.goarch }} \
+          go build -o $OUTPUT_DIR/$APP_NAME .
+
+      - name: Package archive
+        run: |
+          ARCHIVE_NAME="${APP_NAME}-v${{ steps.version.outputs.version }}-${{ matrix.os-name }}.tar.gz"
+
+          tar -czf $OUTPUT_DIR/$ARCHIVE_NAME \
+            -C $OUTPUT_DIR \
+            $APP_NAME
+
+          rm $OUTPUT_DIR/$APP_NAME
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os-name }}
+          path: release/build/*.tar.gz
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display downloaded files
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
