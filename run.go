@@ -15,11 +15,13 @@ func getRunCommand() *cobra.Command {
 			url, _ := cmd.Flags().GetString("url")
 			model, _ := cmd.Flags().GetString("model-name")
 			outputPath, _ := cmd.Flags().GetString("output")
+			format, _ := cmd.Flags().GetString("format")
 			input := upscayl.Input{
-				ImagePath:  imagePath,
-				ImageURL:   url,
-				Model:      model,
-				OutputPath: outputPath,
+				ImagePath:   imagePath,
+				ImageURL:    url,
+				Model:       model,
+				OutputPath:  outputPath,
+				SaveImageAs: format,
 			}
 			outputPath, err := upscayl.Upscayl(input)
 			if err != nil {
@@ -42,7 +44,7 @@ func getRunCommand() *cobra.Command {
 	cmd.Flags().StringP("gpu-id", "g", "auto", "GPU device to use (default=auto) can be 0,1,2 for multi-gpu")
 	cmd.Flags().StringP("threads", "j", "1:2:2", "Thread count for load/proc/save (default=1:2:2)")
 	cmd.Flags().BoolP("tta", "x", false, "Enable TTA mode")
-	cmd.Flags().StringP("format", "f", "ext/png", "Output image format (jpg/png/webp)")
+	cmd.Flags().StringP("format", "f", "", "Output image format (jpg/png/webp)")
 	cmd.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return cmd
 }
